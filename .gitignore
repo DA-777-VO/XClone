@@ -30,3 +30,6 @@ obj
 Thumbs.db
 
 appsettings.json
+
+*.ldf
+*.mdf
