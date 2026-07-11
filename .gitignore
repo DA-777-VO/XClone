@@ -1,0 +1,32 @@
+node_modules
+
+dist
+tmp
+out-tsc
+bazel-out
+
+.angular
+.vite
+
+
+bin
+obj
+
+
+.vs
+.idea
+.user
+.suo
+.userosscache
+.sln.docstates
+
+# Локальные настройки разработки (appsettings.Development.json можно оставить, но локальные секреты лучше скрыть)
+.user.config
+
+# =========================
+# OS  Общие
+# =========================
+.DS_Store
+Thumbs.db
+
+appsettings.json
