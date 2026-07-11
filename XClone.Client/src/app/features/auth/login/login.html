@@ -1,0 +1,27 @@
+<div style="margin: 50px">
+  <h2>Вход в X-Clone</h2>
+
+  <!-- [formGroup] связывает тег <form> с нашей переменной loginForm из TS -->
+  <!-- (ngSubmit) вызывает метод onSubmit(), когда пользователь нажимает кнопку или Enter -->
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div>
+      <label for="email">Имя пользователя:</label><br />
+      <!-- formControlName связывает конкретный input с конкретным FormControl из TS -->
+      <input id="email" type="text" formControlName="email" />
+    </div>
+    <br />
+
+    <div>
+      <label for="password">Пароль:</label><br />
+      <input id="password" type="password" formControlName="password" />
+    </div>
+    <br />
+
+    <!-- Кнопка будет неактивной (disabled), пока поля пустые -->
+    <button type="submit" [disabled]="loginForm.invalid">Войти</button>
+  </form>
+
+  <br />
+  <!-- Ссылка для перехода на страницу регистрации -->
+  <a routerLink="/register">Нет аккаунта? Зарегистрироваться</a>
+</div>
