@@ -20,16 +20,9 @@ obj
 .userosscache
 .sln.docstates
 
-# Локальные настройки разработки (appsettings.Development.json можно оставить, но локальные секреты лучше скрыть)
 .user.config
 
-# =========================
-# OS  Общие
-# =========================
 .DS_Store
 Thumbs.db
 
 appsettings.json
-
-*.ldf
-*.mdf

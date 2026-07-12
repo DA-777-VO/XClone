@@ -8,7 +8,7 @@ export interface ILoginData {
   password: string;
 }
 
-export interface registerData {
+export interface IRegisterData {
   username: string;
   email: string;
   password: string;
@@ -33,7 +33,7 @@ export class AuthService {
       );
   }
 
-  register(registerData: registerData): Observable<string> {
+  register(registerData: IRegisterData): Observable<string> {
     return this.http.post<string>(`${apiUrl}/api/Auth/register`, registerData);
   }
 

@@ -1,0 +1,13 @@
+<p>feed-component works!</p>
+
+<form [formGroup] = "tweetForm" (ngSubmit) = "onSubmit()">
+  <label for="tweet">Tweet:</label>
+  <input id="tweet" type="text" formControlName="tweet" />
+  <button type="submit">Tweet</button>
+</form>
+
+@for (tweet of tweets(); track tweet.id){
+  <div>
+    {{ tweet.text }}
+  </div>
+}

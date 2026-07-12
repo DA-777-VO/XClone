@@ -9,6 +9,16 @@ using XClone.Api.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 builder.Services.AddControllers();
 // Мы меняем Singleton на Scoped, потому что работа с базой данных должна жить ровно один HTTP-запрос,
 // чтобы вовремя закрывать подключение к базе и не перегружать память сервера.
@@ -90,7 +100,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors();
+
+// app.UseHttpsRedirection(); // закомментировано для разработки — редирект ломает CORS
 
 app.UseAuthorization();
 

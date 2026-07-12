@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { AuthService, ILoginData } from '../../../core/services/auth-service';
-import { Router } from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-login',
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterModule
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
@@ -29,6 +30,7 @@ export class Login {
     this.authService.login(loginData).subscribe({
       next: (token) => {
         console.log(token)
+        this.router.navigate(['/main'])
       },
 
       error: (err) => {
@@ -37,5 +39,16 @@ export class Login {
       }
     })
   }
+
+  // onSubmit(){
+  //   this.authService.getAllTweets().subscribe({
+  //     next: (tweets) => {
+  //       console.log(tweets);
+  //     },
+  //     error: (err) => {
+  //       console.log('Ошибка:', err);
+  //     }
+  //   });
+  // }
 
 }

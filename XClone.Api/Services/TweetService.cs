@@ -12,7 +12,7 @@ public class TweetService : ITweetService
         this.tweetRepository = tweetRepository;
     }
     
-    public async Task CreateTweetAsync(string text, Guid userId)
+    public async Task<Tweet> CreateTweetAsync(string text, Guid userId)
     {
         if (text.Length > 280)
         {
@@ -26,6 +26,7 @@ public class TweetService : ITweetService
             UserId = userId
         };
         await tweetRepository.Add(tweet);
+        return tweet;
     }
     
     public async Task<List<Tweet>> GetAllTweets()

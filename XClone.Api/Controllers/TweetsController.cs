@@ -46,9 +46,9 @@ public class TweetsController : ControllerBase
             Guid userId = Guid.Parse(userIdString);
 
             // Передаем в сервис текст твита и ID его автора
-            await _tweetService.CreateTweetAsync(request.Text, userId);
+            var tweet = await _tweetService.CreateTweetAsync(request.Text, userId);
         
-            return Ok("Твит успешно опубликован!");
+            return Ok(tweet);
         }
         catch (Exception ex)
         {
