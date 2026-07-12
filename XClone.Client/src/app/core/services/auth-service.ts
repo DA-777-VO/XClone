@@ -40,4 +40,34 @@ export class AuthService {
   saveToken(token: string) {
     localStorage.setItem('token', token);
   }
+
+  logout() {
+    localStorage.removeItem('token');
+  }
+
+
+  isAuthenticated(): boolean {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+
+      console.log('payload', decodedPayload)
+
+      if (!decodedPayload.exp) return true;
+
+      console.log('expiryTime', decodedPayload.exp)
+
+      const expiryTime = decodedPayload.exp * 1000;
+
+      console.log(Date.now())
+      return Date.now() < expiryTime;
+
+    } catch (e) {
+      return false;
+    }
+  }
+
 }

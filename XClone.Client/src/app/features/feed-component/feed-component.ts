@@ -1,6 +1,8 @@
 import {Component, signal, inject} from '@angular/core';
 import {ITweet, TweetService} from '../../core/services/tweet-service';
 import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {AuthService} from '../../core/services/auth-service';
 
 @Component({
   selector: 'app-feed-component',
@@ -12,6 +14,8 @@ import {FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 })
 export class FeedComponent {
   private readonly tweetService: TweetService =  inject(TweetService)
+  private readonly authService: AuthService =  inject(AuthService)
+  private readonly router: Router =  inject(Router)
   tweets = signal<ITweet[]>([])
 
   tweetForm: FormGroup = new FormGroup({
@@ -22,7 +26,7 @@ export class FeedComponent {
     this.tweetService.getAllTweets().subscribe({
       next: tweets => {
         this.tweets.set(tweets);
-        console.log(this.tweets);
+        console.log(this.tweets());
       },
       error: err =>
         console.log(err)
@@ -31,7 +35,7 @@ export class FeedComponent {
     )
   }
 
-  onSubmit(){
+  onSubmitTweet(){
     if(this.tweetForm.invalid) return;
 
     const Text: string = this.tweetForm.value.tweet;
@@ -44,5 +48,10 @@ export class FeedComponent {
       },
       error: err => console.log(err)
     })
+  }
+
+  onClickLogout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

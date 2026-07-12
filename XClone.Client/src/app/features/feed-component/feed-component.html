@@ -1,6 +1,6 @@
 <p>feed-component works!</p>
 
-<form [formGroup] = "tweetForm" (ngSubmit) = "onSubmit()">
+<form [formGroup] = "tweetForm" (ngSubmit) = "onSubmitTweet()">
   <label for="tweet">Tweet:</label>
   <input id="tweet" type="text" formControlName="tweet" />
   <button type="submit">Tweet</button>
@@ -11,3 +11,5 @@
     {{ tweet.text }}
   </div>
 }
+
+<a (click) = "onClickLogout()">Logout</a>
