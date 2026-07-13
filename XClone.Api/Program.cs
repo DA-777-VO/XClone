@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using XClone.Api.Controllers;
 using XClone.Api.Data;
 using XClone.Api.Repositories;
 using XClone.Api.Services;
@@ -23,6 +24,7 @@ builder.Services.AddControllers();
 // Мы меняем Singleton на Scoped, потому что работа с базой данных должна жить ровно один HTTP-запрос,
 // чтобы вовремя закрывать подключение к базе и не перегружать память сервера.
 builder.Services.AddScoped<ITweetRepository, EfTweetRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Сервис делаем Scoped (создается новый экземпляр на каждый HTTP-запрос). Это стандарт.
 builder.Services.AddScoped<ITweetService, TweetService>();

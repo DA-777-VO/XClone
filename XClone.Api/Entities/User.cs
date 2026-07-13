@@ -8,10 +8,15 @@ public class User
     public string Username { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }
-    
+
     [JsonIgnore]
     public List<Tweet> Tweets { get; set; } = new List<Tweet>();
-    
+
     [JsonIgnore]
     public List<Like> Likes { get; set; } = new List<Like>();
+
+    [JsonIgnore]
+    public List<Subscription> Followers { get; set; } = new List<Subscription>();
+    [JsonIgnore]
+    public List<Subscription> Following { get; set; } = new List<Subscription>();
 }
