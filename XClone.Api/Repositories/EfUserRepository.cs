@@ -61,6 +61,8 @@ public class EfUserRepository : IUserRepository
             {
                 Id = u.Id,
                 Username = u.Username,
+                Bio = u.Bio,
+                TweetsCount = u.Tweets.Count,
                 FollowersCount = u.Followers.Count,
                 FollowingCount = u.Following.Count
             })
