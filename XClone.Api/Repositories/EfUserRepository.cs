@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using XClone.Api.Data;
+using XClone.Api.DTOs;
 using XClone.Api.Entities;
 
 namespace XClone.Api.Repositories;
@@ -50,5 +51,19 @@ public class EfUserRepository : IUserRepository
     {
             _context.Subscriptions.Remove(subscription);
             await _context.SaveChangesAsync();
+    }
+
+    public async Task<UserProfileResponse?> GetProfileByUsernameAsync(string username)
+    {
+        return await _context.Users
+            .Where(u => u.Username == username)
+            .Select(u => new UserProfileResponse
+            {
+                Id = u.Id,
+                Username = u.Username,
+                FollowersCount = u.Followers.Count,
+                FollowingCount = u.Following.Count
+            })
+            .FirstOrDefaultAsync();
     }
 }

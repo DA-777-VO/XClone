@@ -1,4 +1,5 @@
-﻿using XClone.Api.Entities;
+﻿using XClone.Api.DTOs;
+using XClone.Api.Entities;
 
 namespace XClone.Api.Repositories;
 
@@ -11,4 +12,5 @@ public interface IUserRepository
     Task<Subscription?> GetSubscriptionAsync(Guid followerId, Guid followeeId);
     Task AddSubscriptionAsync(Subscription subscription);
     Task RemoveSubscriptionAsync(Subscription subscription);
+    Task<UserProfileResponse?> GetProfileByUsernameAsync(string username);
 }

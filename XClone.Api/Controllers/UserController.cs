@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using XClone.Api.DTOs;
 using XClone.Api.Services;
 
 namespace XClone.Api.Controllers;
@@ -48,5 +49,22 @@ public class UserController: ControllerBase
         }
 
     }
-
+    
+    [HttpGet("{username}")]
+    public async Task<IActionResult> GetUserProfile(string username)
+    {
+        try
+        {
+            UserProfileResponse userProfile = await _userService.GetUserProfileAsync(username);
+            return Ok(userProfile);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }

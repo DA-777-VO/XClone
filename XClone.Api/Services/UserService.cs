@@ -1,4 +1,5 @@
-﻿using XClone.Api.Entities;
+﻿using XClone.Api.DTOs;
+using XClone.Api.Entities;
 using XClone.Api.Repositories;
 
 namespace XClone.Api.Services;
@@ -34,5 +35,12 @@ public class UserService: IUserService
             };
             await _userRepository.AddSubscriptionAsync(newSub);
         }
+    }
+
+    public async Task<UserProfileResponse> GetUserProfileAsync(string username)
+    {
+        var userProfile = await _userRepository.GetProfileByUsernameAsync(username);
+        if (userProfile == null) throw new KeyNotFoundException("Пользователь не найден");
+        return userProfile;
     }
 }
