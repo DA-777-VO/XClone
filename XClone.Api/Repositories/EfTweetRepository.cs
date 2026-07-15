@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using XClone.Api.Data;
+using XClone.Api.DTOs;
 using XClone.Api.Entities;
 
 namespace XClone.Api.Repositories;
@@ -34,6 +35,27 @@ public class EfTweetRepository : ITweetRepository
     public async Task<Tweet?> GetTweetByIdAsync(Guid id)
     {
         return await _context.Tweets.FirstOrDefaultAsync(t => t.Id == id);
+    }
+
+    public async Task<List<TweetResponse>> GetHomeFeedAsync(Guid userId)
+    {
+        var followeedUsersIds = await _context.Subscriptions
+            .Where(s => s.FollowerId == userId)
+            .Select(s => s.FolloweeId)
+            .ToListAsync();
+
+        return await _context.Tweets
+            .Where(t => followeedUsersIds.Contains(t.UserId) || t.UserId == userId)
+            .OrderByDescending(t => t.CreatedAt)
+            .Select(t => new TweetResponse
+            {
+                Id = t.Id,
+                Text = t.Text,
+                CreatedAt = t.CreatedAt,
+                AuthorId = t.UserId,
+                AuthorName = t.User.Username
+            })
+            .ToListAsync();
     }
 
     public async Task RemoveLikeAsync(Like like)

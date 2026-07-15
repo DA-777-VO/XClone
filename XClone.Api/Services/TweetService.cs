@@ -1,4 +1,5 @@
-﻿using XClone.Api.Entities;
+﻿using XClone.Api.DTOs;
+using XClone.Api.Entities;
 using XClone.Api.Repositories;
 
 namespace XClone.Api.Services;
@@ -56,5 +57,15 @@ public class TweetService : ITweetService
             CreatedAt = DateTime.UtcNow,
         };
         await tweetRepository.AddLikeAsync(newLike);
+    }
+
+    public async Task<List<TweetResponse>> GetHomeFeedAsync(Guid userId)
+    {
+        List<TweetResponse> userFeed = await tweetRepository.GetHomeFeedAsync(userId);
+        if (userFeed == null)
+        {
+            throw new KeyNotFoundException("User feed not found.");
+        }
+        return userFeed;
     }
 }
