@@ -36,51 +36,37 @@ public class TweetsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTweet([FromBody] CreateTweetRequest request)
     {
-        try
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                return Unauthorized("Пользователь не распознан.");
-            }
-
-            Guid userId = Guid.Parse(userIdString);
-
-            // Передаем в сервис текст твита и ID его автора
-            var tweet = await _tweetService.CreateTweetAsync(request.Text, userId);
-
-            return Ok(tweet);
+            return Unauthorized("Пользователь не распознан.");
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+
+        Guid userId = Guid.Parse(userIdString);
+
+        // Передаем в сервис текст твита и ID его автора
+        var tweet = await _tweetService.CreateTweetAsync(request.Text, userId);
+
+        return Ok(tweet);
     }
 
     [Authorize]
     [HttpPost("{tweetId}/like")]
     public async Task<IActionResult> ToggleLike(Guid tweetId)
     {
-        try
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userIdString))
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                return Unauthorized("Пользователь не распознан.");
-            }
-
-            Guid userId = Guid.Parse(userIdString);
-
-            await _tweetService.ToggleLikeAsync(userId, tweetId);
-
-            return Ok("Лайк успешно изменен!");
+            return Unauthorized("Пользователь не распознан.");
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+
+        Guid userId = Guid.Parse(userIdString);
+
+        await _tweetService.ToggleLikeAsync(userId, tweetId);
+
+        return Ok("Лайк успешно изменен!");
     }
 
 
@@ -88,28 +74,17 @@ public class TweetsController : ControllerBase
     [HttpGet("feed")]
     public async Task<ActionResult<List<TweetResponse>>> GetHomeFeed()
     {
-        try
-        {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (string.IsNullOrEmpty(userIdString))
-            {
-                return Unauthorized("Пользователь не распознан.");
-            }
-
-            Guid userId = Guid.Parse(userIdString);
-
-            var userFeed = await _tweetService.GetHomeFeedAsync(userId);
-            return Ok(userFeed);
-        }
-        catch (ArgumentException ex)
+        if (string.IsNullOrEmpty(userIdString))
         {
-            return BadRequest(ex.Message);
+            return Unauthorized("Пользователь не распознан.");
         }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
+
+        Guid userId = Guid.Parse(userIdString);
+
+        var userFeed = await _tweetService.GetHomeFeedAsync(userId);
+        return Ok(userFeed);
     }
 
 }

@@ -30,36 +30,14 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
-        try
-        {
-            await _authService.Register(request.Username, request.Email, request.Password);
-            return Ok("User registered successfully");
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Server Error" + ex.Message);
-        }
+        await _authService.Register(request.Username, request.Email, request.Password);
+        return Ok("User registered successfully");
     }
     
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest request)
     {
-        try
-        {
-            var token = await _authService.Login(request.Email, request.Password);
-            return Ok(new { Token = token }); 
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Server Error" + ex.Message);
-        }
+        var token = await _authService.Login(request.Email, request.Password);
+        return Ok(new { Token = token });
     } 
 }

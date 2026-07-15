@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using XClone.Api.Controllers;
 using XClone.Api.Data;
+using XClone.Api.Middlewares;
 using XClone.Api.Repositories;
 using XClone.Api.Services;
 
@@ -92,6 +93,8 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -105,8 +108,6 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 
 // app.UseHttpsRedirection(); // закомментировано для разработки — редирект ломает CORS
-
-app.UseAuthorization();
 
 app.MapControllers();
 
