@@ -13,4 +13,6 @@ public interface IUserRepository
     Task AddSubscriptionAsync(Subscription subscription);
     Task RemoveSubscriptionAsync(Subscription subscription);
     Task<UserProfileResponse?> GetProfileByUsernameAsync(string username);
+    Task UpdateAsync(User user);
+    Task<UserProfileResponse?> GetProfileByIdAsync(Guid userId);
 }

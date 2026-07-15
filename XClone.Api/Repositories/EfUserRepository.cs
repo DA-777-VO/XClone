@@ -68,4 +68,26 @@ public class EfUserRepository : IUserRepository
             })
             .FirstOrDefaultAsync();
     }
+
+    public async Task<UserProfileResponse?> GetProfileByIdAsync(Guid userId)
+    {
+        return await _context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new UserProfileResponse
+            {
+                Id = u.Id,
+                Username = u.Username,
+                Bio = u.Bio,
+                TweetsCount = u.Tweets.Count,
+                FollowersCount = u.Followers.Count,
+                FollowingCount = u.Following.Count
+            })
+            .FirstOrDefaultAsync();
+    }
+    
+    public async Task UpdateAsync(User user)
+    {
+       _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
 }

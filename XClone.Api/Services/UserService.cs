@@ -43,4 +43,19 @@ public class UserService: IUserService
         if (userProfile == null) throw new KeyNotFoundException("Пользователь не найден");
         return userProfile;
     }
+
+    public async Task<UserProfileResponse> GetUserProfileByIdAsync(Guid userId)
+    {
+        var profile = await _userRepository.GetProfileByIdAsync(userId);
+        if (profile == null) throw new KeyNotFoundException("Пользователь не найден");
+        return profile;
+    }
+
+    public async Task UpdateProfileAsync(Guid userId, string? bio)
+    {
+        User user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) throw new KeyNotFoundException("user not found");
+        user.Bio = bio;
+        await _userRepository.UpdateAsync(user);
+    }
 }
