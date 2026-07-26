@@ -7,9 +7,10 @@ export const tokenExpiredInterceptor: HttpInterceptorFn = (req, next) => {
   const router: Router = inject(Router)
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      localStorage.removeItem('token');
-      console.log(error);
+      console.log('Произошла ошибка запроса:', error);
       if (error.status === 401) {
+        console.warn('Сессия устарела. Разлогиниваем...');
+        localStorage.removeItem('token');
         router.navigate(['/login']);
       }
       throw error;

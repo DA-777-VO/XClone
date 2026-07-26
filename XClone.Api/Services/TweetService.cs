@@ -117,11 +117,28 @@ public class TweetService : ITweetService
     {
 
         string cacheKey = $"feed_{userId}";
+        string? cachedFeed = null;
+            
+            
+        try
+        {
+            cachedFeed = await _cache.GetStringAsync(cacheKey);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARNING] Redis is down: {ex.Message}. Falling back to Postgres.");
+        }
 
-        string? cachedFeed = await _cache.GetStringAsync(cacheKey);
         if (!string.IsNullOrEmpty(cachedFeed))
         {
-            return JsonSerializer.Deserialize<List<TweetResponse>>(cachedFeed);
+            try
+            {
+                return JsonSerializer.Deserialize<List<TweetResponse>>(cachedFeed);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARNING] Cache deserialization failed: {ex.Message}");
+            }
         }
 
         List<TweetResponse> feedFromDb = await _tweetRepository.GetHomeFeedAsync(userId);
@@ -136,7 +153,14 @@ public class TweetService : ITweetService
             AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
         };
 
-        await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(feedFromDb), cacheOptions);
+        try
+        {
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(feedFromDb), cacheOptions);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARNING] Cache serialization failed: {ex.Message}");
+        }
 
         return feedFromDb;
     }

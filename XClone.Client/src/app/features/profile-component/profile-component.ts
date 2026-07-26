@@ -22,13 +22,15 @@ export class ProfileComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(param => {
       const profileUsername = param.get('username');
+      const myUsername = this.authService.getCurrentUsername();
 
-      if (profileUsername) {
-        this.isMyProfile.set(false),
-        this.loadUserProfile(profileUsername)
-      } else {
+
+      if (!profileUsername || profileUsername === myUsername) {
         this.isMyProfile.set(true)
         this.loadMyProfile()
+      } else {
+          this.isMyProfile.set(false)
+          this.loadUserProfile(profileUsername)
       }
     })
   }

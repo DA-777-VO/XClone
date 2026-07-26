@@ -70,4 +70,25 @@ export class AuthService {
     }
   }
 
+  getCurrentUsername(): string | null {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+
+    try {
+      const payloadBase64 = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payloadBase64));
+
+      // В ASP.NET Core имя пользователя в JWT часто записывается в системный клейм ClaimTypes.Name,
+      // который в JSON превращается в длинную ссылку. Проверим все популярные варианты:
+      return decodedPayload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'] ||
+        decodedPayload['sub'] ||
+        decodedPayload['name'] ||
+        decodedPayload['unique_name'] ||// На всякий случай стандартный JWT-ключ
+        null;
+    } catch (e) {
+      console.error('Ошибка декодирования токена:', e);
+      return null;
+    }
+  }
+
 }
