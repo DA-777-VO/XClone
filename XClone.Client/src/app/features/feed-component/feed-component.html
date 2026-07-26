@@ -1,15 +1,54 @@
-<p>feed-component works!</p>
+<!--<button routerLink="/profile">Мой профиль</button>-->
 
-<form [formGroup] = "tweetForm" (ngSubmit) = "onSubmitTweet()">
-  <label for="tweet">Tweet:</label>
-  <input id="tweet" type="text" formControlName="tweet" />
-  <button type="submit">Tweet</button>
-</form>
+<!--<form [formGroup] = "tweetForm" (ngSubmit) = "onSubmitTweet()">-->
+<!--  <label for="tweet">Tweet:</label>-->
+<!--  <input id="tweet" type="text" formControlName="tweet" />-->
+<!--  <button type="submit">Tweet</button>-->
+<!--</form>-->
 
-@for (tweet of tweets(); track tweet.id){
-  <div>
-    {{ tweet.text }}
+<!--@for (tweet of tweets(); track tweet.id){-->
+<!--  <div>-->
+<!--    {{ tweet.text }}-->
+<!--  </div>-->
+<!--}-->
+
+<!--<a (click) = "onClickLogout()">Logout</a>-->
+
+<div style="margin: 20px; font-family: sans-serif;">
+  <p>feed-component works!</p>
+  <a routerLink="/profile">Мой профиль</a>
+
+  <!-- Кнопки переключения вкладок (Простой дизайн) -->
+  <div style="margin: 20px 0; display: flex; gap: 10px;">
+    <button
+      (click)="switchTab('all')"
+      [style.font-weight]="activeTab() === 'all' ? 'bold' : 'normal'">
+      Все твиты
+    </button>
+    <button
+      (click)="switchTab('feed')"
+      [style.font-weight]="activeTab() === 'feed' ? 'bold' : 'normal'">
+      В фокусе (Подписки)
+    </button>
   </div>
-}
 
-<a (click) = "onClickLogout()">Logout</a>
+  <form [formGroup]="tweetForm" (ngSubmit)="onSubmitTweet()">
+    <label for="tweet">Tweet:</label>
+    <input id="tweet" type="text" formControlName="tweet" />
+    <button type="submit">Tweet</button>
+  </form>
+
+  <hr>
+
+  @for (tweet of tweets(); track tweet.id) {
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+      <!-- Ссылка на профиль автора твита -->
+      <a [routerLink]="['/profile', tweet.authorName]" style="font-weight: bold; color: #1da1f2; text-decoration: none;">
+        Username автора: {{ tweet.authorName || "Test Username" }}
+      </a>
+      <p>{{ tweet.text }}</p>
+    </div>
+  } @empty {
+    <p>Здесь пока ничего нет.</p>
+  }
+</div>

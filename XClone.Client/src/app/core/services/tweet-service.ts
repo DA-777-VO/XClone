@@ -8,6 +8,7 @@ export interface ITweet{
   text: string;
   createdAt: Date;
   userId: string;
+  authorName: string;
 }
 
 @Injectable({
@@ -22,6 +23,10 @@ export class TweetService {
 
   createTweet(Text: string): Observable<ITweet> {
     return this.http.post<ITweet>(`${apiUrl}/api/Tweets`, {text: Text})
+  }
+
+  getHomeFeed(): Observable<ITweet[]> {
+    return this.http.get<ITweet[]>(`${apiUrl}/api/Tweets/feed`);
   }
 
 }

@@ -6,7 +6,7 @@ namespace XClone.Api.Repositories;
 public interface ITweetRepository
 {
     Task Add(Tweet tweet);
-    Task<List<Tweet>> GetAllAsync();
+    Task<List<TweetResponse>> GetAllAsync();
     
     Task AddLikeAsync(Like like);
     Task RemoveLikeAsync(Like like);

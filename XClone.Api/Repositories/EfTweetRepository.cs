@@ -21,10 +21,21 @@ public class EfTweetRepository : ITweetRepository
         await _context.SaveChangesAsync();     // Сохраняем изменения. В этот момент EF Core отправляет в Postgres реальный SQL-запрос: INSERT INTO ...
     }
 
-    public async Task<List<Tweet>> GetAllAsync()
+    public async Task<List<TweetResponse>> GetAllAsync()
     {
         // Достаем все записи из таблицы Tweets и превращаем в обычный список C# (это запрос SELECT * FROM)
-        return  await _context.Tweets.ToListAsync();
+        return  await _context.Tweets
+            .OrderByDescending(t => t.CreatedAt) // Сначала новые
+            .Select(t => new TweetResponse
+            {
+                Id = t.Id,
+                Text = t.Text,
+                CreatedAt = t.CreatedAt,
+                AuthorId = t.UserId,
+                // EF Core сам сделает SQL JOIN под капотом и достанет имя пользователя!
+                AuthorName = t.User.Username 
+            })
+            .ToListAsync();
     }
 
     public async Task<Like?> GetLikeAsync(Guid userId, Guid tweetId)

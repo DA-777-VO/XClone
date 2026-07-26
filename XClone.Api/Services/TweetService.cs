@@ -1,4 +1,6 @@
-﻿using XClone.Api.DTOs;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
+using XClone.Api.DTOs;
 using XClone.Api.Entities;
 using XClone.Api.Repositories;
 
@@ -6,13 +8,15 @@ namespace XClone.Api.Services;
 
 public class TweetService : ITweetService
 {
-    private readonly ITweetRepository tweetRepository;
+    private readonly ITweetRepository _tweetRepository;
+    private readonly IDistributedCache _cache;
 
-    public TweetService(ITweetRepository tweetRepository)
+    public TweetService(ITweetRepository tweetRepository, IDistributedCache cache)
     {
-        this.tweetRepository = tweetRepository;
+        _tweetRepository = tweetRepository;
+        _cache = cache;
     }
-    
+
     public async Task<Tweet> CreateTweetAsync(string text, Guid userId)
     {
         if (text.Length > 280)
@@ -26,27 +30,77 @@ public class TweetService : ITweetService
             CreatedAt = DateTime.UtcNow,
             UserId = userId
         };
-        await tweetRepository.Add(tweet);
+        await _tweetRepository.Add(tweet);
+        
+        try
+        {
+            await _cache.RemoveAsync("all_tweets");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARNING] Failed to remove cache: {ex.Message}");
+        }
         return tweet;
     }
-    
-    public async Task<List<Tweet>> GetAllTweets()
+
+    public async Task<List<TweetResponse>> GetAllTweets()
     {
-        return await tweetRepository.GetAllAsync();
+        string cacheKey = "all_tweets";
+        string? cachedTweets = null;
+
+        try
+        {
+            cachedTweets = await _cache.GetStringAsync(cacheKey);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARNING] Redis is down: {ex.Message}. Falling back to Postgres.");
+        }
+        
+        if (!string.IsNullOrEmpty(cachedTweets))
+        {
+            try
+            {
+                return JsonSerializer.Deserialize<List<TweetResponse>>(cachedTweets);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[WARNING] Cache deserialization failed: {ex.Message}");
+            }
+        };
+
+        List<TweetResponse> tweetsFromDb = await _tweetRepository.GetAllAsync();
+        
+        var cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        };
+        
+        try
+        {
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(tweetsFromDb), cacheOptions);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[WARNING] Cache serialization failed: {ex.Message}");
+        }
+
+        return tweetsFromDb;
+        // return await _tweetRepository.GetAllAsync();
     }
 
     public async Task ToggleLikeAsync(Guid userId, Guid tweetId)
     {
-        Tweet tweet = await tweetRepository.GetTweetByIdAsync(tweetId);
+        Tweet tweet = await _tweetRepository.GetTweetByIdAsync(tweetId);
         if (tweet == null)
         {
             throw new KeyNotFoundException("Твит не найден.");
         }
-        
-        Like? existingLike = await tweetRepository.GetLikeAsync(userId, tweetId);
+
+        Like? existingLike = await _tweetRepository.GetLikeAsync(userId, tweetId);
         if (existingLike != null)
-        { 
-            await tweetRepository.RemoveLikeAsync(existingLike);
+        {
+            await _tweetRepository.RemoveLikeAsync(existingLike);
             return;
         }
 
@@ -56,16 +110,34 @@ public class TweetService : ITweetService
             TweetId = tweetId,
             CreatedAt = DateTime.UtcNow,
         };
-        await tweetRepository.AddLikeAsync(newLike);
+        await _tweetRepository.AddLikeAsync(newLike);
     }
 
     public async Task<List<TweetResponse>> GetHomeFeedAsync(Guid userId)
     {
-        List<TweetResponse> userFeed = await tweetRepository.GetHomeFeedAsync(userId);
-        if (userFeed == null)
+
+        string cacheKey = $"feed_{userId}";
+
+        string? cachedFeed = await _cache.GetStringAsync(cacheKey);
+        if (!string.IsNullOrEmpty(cachedFeed))
+        {
+            return JsonSerializer.Deserialize<List<TweetResponse>>(cachedFeed);
+        }
+
+        List<TweetResponse> feedFromDb = await _tweetRepository.GetHomeFeedAsync(userId);
+
+        if (feedFromDb == null)
         {
             throw new KeyNotFoundException("User feed not found.");
         }
-        return userFeed;
+
+        var cacheOptions = new DistributedCacheEntryOptions
+        {
+            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+        };
+
+        await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(feedFromDb), cacheOptions);
+
+        return feedFromDb;
     }
 }

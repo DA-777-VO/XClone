@@ -1,0 +1,73 @@
+<p>profile-component works!</p>
+<div style="margin: 30px; font-family: sans-serif;">
+  <!-- Простая навигация -->
+  <nav style="margin-bottom: 20px;">
+    <button routerLink="/main">⬅ На главную ленту</button>
+  </nav>
+
+
+@if (profile(); as p) {
+  <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 400px; margin: 20px;">
+    <h2>&#64;{{ p.username }}</h2>
+    <p style="color: #555; font-style: italic;">
+              {{ p.bio || 'Биография не заполнена' }}
+            </p>
+
+    <!-- Показываем кнопку подписки, только если профиль чужой -->
+    @if (!isMyProfile()) {
+      <button (click)="onFollowToggle()" style="margin-bottom: 15px; padding: 8px 12px; background-color: #1da1f2; color: white; border: none; border-radius: 20px; cursor: pointer;">
+        Подписаться / Отписаться
+      </button>
+    }
+
+    <div style="display: flex; gap: 20px;">
+      <div><strong>{{ p.followingCount }}</strong> <span style="color: gray;">Читаемые</span></div>-->
+              <div><strong>{{ p.followersCount }}</strong> <span style="color: gray;">Читатели</span></div>
+              <div><strong>{{ p.tweetsCount }}</strong> <span style="color: gray;">Твиты</span></div>
+    </div>
+  </div>
+
+  <button (click)="onLogout()" style="background-color: #e0245e; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">-->
+            Выйти из аккаунта
+          </button>
+      } @else {
+        <p>Загрузка профиля...</p>
+      }
+
+</div>
+
+
+
+<!--<p>profile-component works!</p>-->
+<!--<div style="margin: 30px; font-family: sans-serif;">-->
+<!--  &lt;!&ndash; Простая навигация &ndash;&gt;-->
+<!--  <nav style="margin-bottom: 20px;">-->
+<!--    <button routerLink="/main">⬅ На главную ленту</button>-->
+<!--  </nav>-->
+
+<!--  &lt;!&ndash; Если профиль загрузился &ndash;&gt;-->
+<!--  @if (profile(); as p) {-->
+<!--    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; max-width: 400px;">-->
+<!--      <h2>&#64;{{ p.username }}</h2>-->
+
+<!--      <p style="color: #555; font-style: italic;">-->
+<!--        {{ p.bio || 'Биография не заполнена' }}-->
+<!--      </p>-->
+
+<!--      <hr style="border: 0; border-top: 1px solid #eee;">-->
+
+<!--      &lt;!&ndash; Счётчики подписчиков (как в Твиттере) &ndash;&gt;-->
+<!--      <div style="display: flex; gap: 20px; margin-bottom: 20px;">-->
+<!--        <div><strong>{{ p.followingCount }}</strong> <span style="color: gray;">Читаемые</span></div>-->
+<!--        <div><strong>{{ p.followersCount }}</strong> <span style="color: gray;">Читатели</span></div>-->
+<!--        <div><strong>{{ p.tweetsCount }}</strong> <span style="color: gray;">Твиты</span></div>-->
+<!--      </div>-->
+
+<!--      <button (click)="onLogout()" style="background-color: #e0245e; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">-->
+<!--        Выйти из аккаунта-->
+<!--      </button>-->
+<!--    </div>-->
+<!--  } @else {-->
+<!--    <p>Загрузка профиля...</p>-->
+<!--  }-->
+<!--</div>-->
