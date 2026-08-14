@@ -31,7 +31,7 @@ public class UserService: IUserService
             {
                 FollowerId = followerId,
                 FolloweeId = followeeId,
-                SubscribedAt = DateTime.Now
+                SubscribedAt = DateTime.UtcNow
             };
             await _userRepository.AddSubscriptionAsync(newSub);
         }

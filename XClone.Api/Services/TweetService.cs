@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using XClone.Api.DTOs;
 using XClone.Api.Entities;
 using XClone.Api.Repositories;
+using XClone.Api.Extensions;
 
 namespace XClone.Api.Services;
 
@@ -32,61 +33,27 @@ public class TweetService : ITweetService
         };
         await _tweetRepository.Add(tweet);
         
-        try
-        {
-            await _cache.RemoveAsync("all_tweets");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WARNING] Failed to remove cache: {ex.Message}");
-        }
+        await _cache.RemoveRecordAsync("all_tweets");
+       
         return tweet;
     }
 
     public async Task<List<TweetResponse>> GetAllTweets()
     {
         string cacheKey = "all_tweets";
-        string? cachedTweets = null;
-
-        try
-        {
-            cachedTweets = await _cache.GetStringAsync(cacheKey);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WARNING] Redis is down: {ex.Message}. Falling back to Postgres.");
-        }
         
-        if (!string.IsNullOrEmpty(cachedTweets))
+        var cachedTweets = await _cache.GetRecordAsync<List<TweetResponse>>(cacheKey);
+        
+        if (cachedTweets != null)
         {
-            try
-            {
-                return JsonSerializer.Deserialize<List<TweetResponse>>(cachedTweets);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[WARNING] Cache deserialization failed: {ex.Message}");
-            }
+            return cachedTweets;
         };
 
         List<TweetResponse> tweetsFromDb = await _tweetRepository.GetAllAsync();
         
-        var cacheOptions = new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        };
-        
-        try
-        {
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(tweetsFromDb), cacheOptions);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WARNING] Cache serialization failed: {ex.Message}");
-        }
+        await _cache.SetRecordAsync(cacheKey, tweetsFromDb, TimeSpan.FromMinutes(5));
 
         return tweetsFromDb;
-        // return await _tweetRepository.GetAllAsync();
     }
 
     public async Task ToggleLikeAsync(Guid userId, Guid tweetId)
@@ -117,50 +84,16 @@ public class TweetService : ITweetService
     {
 
         string cacheKey = $"feed_{userId}";
-        string? cachedFeed = null;
-            
-            
-        try
-        {
-            cachedFeed = await _cache.GetStringAsync(cacheKey);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WARNING] Redis is down: {ex.Message}. Falling back to Postgres.");
-        }
+        var cachedFeed = await _cache.GetRecordAsync<List<TweetResponse>>(cacheKey);
 
-        if (!string.IsNullOrEmpty(cachedFeed))
+        if (cachedFeed != null)
         {
-            try
-            {
-                return JsonSerializer.Deserialize<List<TweetResponse>>(cachedFeed);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[WARNING] Cache deserialization failed: {ex.Message}");
-            }
+            return cachedFeed;
         }
 
         List<TweetResponse> feedFromDb = await _tweetRepository.GetHomeFeedAsync(userId);
-
-        if (feedFromDb == null)
-        {
-            throw new KeyNotFoundException("User feed not found.");
-        }
-
-        var cacheOptions = new DistributedCacheEntryOptions
-        {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
-        };
-
-        try
-        {
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(feedFromDb), cacheOptions);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WARNING] Cache serialization failed: {ex.Message}");
-        }
+        
+        await _cache.SetRecordAsync(cacheKey, feedFromDb, TimeSpan.FromMinutes(5));
 
         return feedFromDb;
     }
