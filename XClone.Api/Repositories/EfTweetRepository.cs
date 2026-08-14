@@ -33,7 +33,8 @@ public class EfTweetRepository : ITweetRepository
                 CreatedAt = t.CreatedAt,
                 AuthorId = t.UserId,
                 // EF Core сам сделает SQL JOIN под капотом и достанет имя пользователя!
-                AuthorName = t.User.Username 
+                AuthorName = t.User.Username,
+                LikesCount = t.Likes.Count
             })
             .ToListAsync();
     }
@@ -64,9 +65,15 @@ public class EfTweetRepository : ITweetRepository
                 Text = t.Text,
                 CreatedAt = t.CreatedAt,
                 AuthorId = t.UserId,
-                AuthorName = t.User.Username
+                AuthorName = t.User.Username,
+                LikesCount = t.Likes.Count
             })
             .ToListAsync();
+    }
+
+    public Task<int> GetLikesCountAsync(Guid tweetId)
+    {
+        return _context.Likes.CountAsync(l => l.TweetId == tweetId);
     }
 
     public async Task RemoveLikeAsync(Like like)

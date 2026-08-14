@@ -13,4 +13,5 @@ public interface ITweetRepository
     Task<Like?> GetLikeAsync(Guid userId, Guid tweetId);
     Task<Tweet?> GetTweetByIdAsync(Guid id);
     Task<List<TweetResponse>> GetHomeFeedAsync(Guid userId);
+    Task<int> GetLikesCountAsync(Guid tweetId);
 }

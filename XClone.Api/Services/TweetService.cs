@@ -56,7 +56,7 @@ public class TweetService : ITweetService
         return tweetsFromDb;
     }
 
-    public async Task ToggleLikeAsync(Guid userId, Guid tweetId)
+    public async Task<int> ToggleLikeAsync(Guid userId, Guid tweetId)
     {
         Tweet tweet = await _tweetRepository.GetTweetByIdAsync(tweetId);
         if (tweet == null)
@@ -68,16 +68,22 @@ public class TweetService : ITweetService
         if (existingLike != null)
         {
             await _tweetRepository.RemoveLikeAsync(existingLike);
-            return;
         }
-
-        Like newLike = new Like
+        else
         {
-            UserId = userId,
-            TweetId = tweetId,
-            CreatedAt = DateTime.UtcNow,
-        };
-        await _tweetRepository.AddLikeAsync(newLike);
+            Like newLike = new Like
+            {
+                UserId = userId,
+                TweetId = tweetId,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await _tweetRepository.AddLikeAsync(newLike);
+        }
+        
+        await _cache.RemoveRecordAsync($"feed_{userId}");
+        await _cache.RemoveRecordAsync("all_tweets");
+        
+        return await _tweetRepository.GetLikesCountAsync(tweetId);
     }
 
     public async Task<List<TweetResponse>> GetHomeFeedAsync(Guid userId)

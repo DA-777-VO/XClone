@@ -64,9 +64,13 @@ public class TweetsController : ControllerBase
 
         Guid userId = Guid.Parse(userIdString);
 
-        await _tweetService.ToggleLikeAsync(userId, tweetId);
+        int newLikesCount = await _tweetService.ToggleLikeAsync(userId, tweetId);
 
-        return Ok("Лайк успешно изменен!");
+        return Ok(new 
+        { 
+            Message = "Лайк успешно изменен", 
+            LikesCount = newLikesCount 
+        });
     }
 
 
