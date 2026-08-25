@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using XClone.Api.Entities;
+using XClone.Api.Events;
 using XClone.Api.Repositories;
 
 namespace XClone.Api.Services;
@@ -11,11 +12,13 @@ public class AuthService : IAuthService
 {
     private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
+    private readonly IMessageProducer _messageProducer;
     
-    public AuthService(IUserRepository userRepository, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IConfiguration configuration, IMessageProducer messageProducer)
     {
         _userRepository = userRepository;
         _configuration = configuration;
+        _messageProducer = messageProducer;
     }
     
     private string GenerateJwtToken(User user)
@@ -70,6 +73,14 @@ public class AuthService : IAuthService
             PasswordHash = passwordHash
         };
         await _userRepository.AddUserAsync(newUser);
+        
+        var userEvent = new UserRegisteredEvent
+        {
+            UserId = newUser.Id,
+            Email = newUser.Email,
+            Username = newUser.Username,
+        };
+        _messageProducer.SendMessage(userEvent, "emails_queue");
     }
 
     public async Task<string> Login(string username, string password)

@@ -7,6 +7,7 @@ using XClone.Api.Data;
 using XClone.Api.Middlewares;
 using XClone.Api.Repositories;
 using XClone.Api.Services;
+using XClone.Api.Workers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +32,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITweetService, TweetService>();
 builder.Services.AddScoped<IUserRepository, EfUserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IMessageProducer, RabbitMqProducer>();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
@@ -95,6 +97,8 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = "localhost:6379";
 });
 
+
+builder.Services.AddHostedService<EmailWorker>();
 
 var app = builder.Build();
 
