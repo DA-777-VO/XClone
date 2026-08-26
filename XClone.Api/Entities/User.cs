@@ -9,6 +9,8 @@ public class User
     public string Email { get; set; }
     public string PasswordHash { get; set; }
     public string? Bio { get; set; }
+    
+    public string? AvatarUrl { get; set; }
 
     [JsonIgnore]
     public List<Tweet> Tweets { get; set; } = new List<Tweet>();

@@ -87,6 +87,9 @@ namespace XClone.Api.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("Bio")
                         .HasColumnType("text");
 
