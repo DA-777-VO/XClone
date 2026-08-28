@@ -8,4 +8,5 @@ public class TweetResponse
     public Guid AuthorId { get; set; }
     public string AuthorName { get; set; }
     public int LikesCount { get; set; }
+    public bool IsLiked { get; set; }
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using XClone.Api.Controllers;
 using XClone.Api.Data;
+using XClone.Api.Hubs;
 using XClone.Api.Middlewares;
 using XClone.Api.Repositories;
 using XClone.Api.Services;
@@ -20,9 +21,21 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
+    
+    //for signals cors
+    //-----
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.SetIsOriginAllowed(_ => true) // Разрешаем любые источники (для тестов)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // ВАЖНО: Без этой строчки SignalR работать НЕ БУДЕТ!
+    });
+    //-----
 });
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 // Мы меняем Singleton на Scoped, потому что работа с базой данных должна жить ровно один HTTP-запрос,
 // чтобы вовремя закрывать подключение к базе и не перегружать память сервера.
 builder.Services.AddScoped<ITweetRepository, EfTweetRepository>();
@@ -33,6 +46,7 @@ builder.Services.AddScoped<ITweetService, TweetService>();
 builder.Services.AddScoped<IUserRepository, EfUserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IMessageProducer, RabbitMqProducer>();
+builder.Services.AddScoped<IFileService, S3FileService>();
 builder.Services.AddEndpointsApiExplorer();
 // builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(options =>
@@ -114,10 +128,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors();
+//for signals cors
+//app.UseCors();
+app.UseCors("AllowAll");
 
 // app.UseHttpsRedirection(); // закомментировано для разработки — редирект ломает CORS
 
 app.MapControllers();
+app.MapHub<TweetHub>("/hubs/tweets");
 
 app.Run();

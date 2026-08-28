@@ -1,9 +1,11 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Distributed;
 using XClone.Api.DTOs;
 using XClone.Api.Entities;
 using XClone.Api.Repositories;
 using XClone.Api.Extensions;
+using XClone.Api.Hubs;
 
 namespace XClone.Api.Services;
 
@@ -11,11 +13,13 @@ public class TweetService : ITweetService
 {
     private readonly ITweetRepository _tweetRepository;
     private readonly IDistributedCache _cache;
+    private readonly IHubContext<TweetHub> _hubContext;
 
-    public TweetService(ITweetRepository tweetRepository, IDistributedCache cache)
+    public TweetService(ITweetRepository tweetRepository, IDistributedCache cache, IHubContext<TweetHub> hubContext)
     {
         _tweetRepository = tweetRepository;
         _cache = cache;
+        _hubContext = hubContext;
     }
 
     public async Task<Tweet> CreateTweetAsync(string text, Guid userId)
@@ -24,7 +28,7 @@ public class TweetService : ITweetService
         {
             throw new ArgumentException("Tweet text cannot exceed 280 characters.");
         }
-        Tweet tweet = new Tweet
+        Tweet tweet = new Tweet //TODO check TweetResponse
         {
             Id=Guid.NewGuid(),
             Text = text,
@@ -34,7 +38,9 @@ public class TweetService : ITweetService
         await _tweetRepository.Add(tweet);
         
         await _cache.RemoveRecordAsync("all_tweets");
-       
+        
+        await _hubContext.Clients.All.SendAsync("ReceiveNewTweet", tweet);
+        
         return tweet;
     }
 
