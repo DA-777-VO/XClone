@@ -70,4 +70,23 @@ export class FeedComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/login']);
   }
+
+  onLikeToggle(tweetId: string) {
+    this.tweetService.toggleLike(tweetId).subscribe({
+      next: (response) => {
+        console.log('Like toggle response:', response);
+        this.tweets.update(currentTweets =>
+          currentTweets.map(tweet => {
+            if (tweet.id === tweetId){
+              const isLiked = !tweet.isLiked;
+              const likesCount = response.likesCount;
+              return {...tweet, isLiked, likesCount};
+            }
+            return tweet;
+          })
+        );
+      },
+      error: (err) => console.log('Like toggle failed', err)
+    });
+  }
 }

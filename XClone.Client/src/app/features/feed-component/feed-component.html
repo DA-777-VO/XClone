@@ -47,6 +47,17 @@
         Username автора: {{ tweet.authorName || "Test Username" }}
       </a>
       <p>{{ tweet.text }}</p>
+
+      <div style="display: flex; align-items: center; gap: 5px;">
+        <button
+          (click)="onLikeToggle(tweet.id)"
+          style="background: none; border: none; cursor: pointer; font-size: 16px; padding: 0;">
+          <!-- Если лайкнут — красное сердечко, если нет — пустое -->
+          {{ tweet.isLiked ? '❤️' : '🤍' }}
+        </button>
+        <span style="font-size: 14px; color: gray;">{{ tweet.likesCount }}</span>
+      </div>
+
     </div>
   } @empty {
     <p>Здесь пока ничего нет.</p>

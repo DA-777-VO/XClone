@@ -27,9 +27,13 @@
     </div>
   </div>
 
-  <button (click)="onLogout()" style="background-color: #e0245e; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">-->
-            Выйти из аккаунта
-          </button>
+
+  @if (isMyProfile()) {
+    <button (click)="onLogout()" style="background-color: #e0245e; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">-->
+      Выйти из аккаунта
+    </button>
+  }
+
       } @else {
         <p>Загрузка профиля...</p>
       }

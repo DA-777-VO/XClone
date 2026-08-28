@@ -7,8 +7,17 @@ export interface ITweet{
   id: string;
   text: string;
   createdAt: Date;
-  userId: string;
+  authorId: string;
   authorName: string;
+
+	// ToDO finish up \ figure out
+  likesCount: number;
+  isLiked: boolean;
+}
+
+export interface LikeResponse {
+  message: string;
+  likesCount: number;
 }
 
 @Injectable({
@@ -29,4 +38,7 @@ export class TweetService {
     return this.http.get<ITweet[]>(`${apiUrl}/api/Tweets/feed`);
   }
 
+  toggleLike(tweetId: string): Observable<LikeResponse> {
+    return this.http.post<LikeResponse>(`${apiUrl}/api/Tweets/${tweetId}/like`, {});
+  }
 }
